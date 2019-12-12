@@ -1,26 +1,23 @@
 function MMN_Duration_Lab_01
-% needs make_swTone, ramp_sound in same folder
 % =========================================================================
-% basic MMN with at least 2 or 3 stds (o) in between dev (x)
-% o o o  o o x  o o x  o o o  o o o  o o x
-% std duration o  = 500 ms
-% dev duration x  = 400 440 480 520 560 600 ms (X)
-%
-% PASSIVE LISTENING
-% RUN the experiment 1 times to get ~100 stimuli fro each dev
+% created by: YN. 27/11/2019
+% last Update: YN. 12/12/2019
 % =========================================================================
-% Triggers which ports?
+%% Description
+% basic passive MMN duration with at least 2 standards (o) between a deviant (x)
+% o o o o o x o o o o o x o o x ...
 % =========================================================================
-% Virginie van Wassenhove 2019
+% The sounds need to be created before with the function GenerateSounds_Y 
+% and then placed in a folder SOUNDS at the location "D:\Thèse\PROJECTS\MMN\SCRIPTS\SOUNDS"
 % =========================================================================
-% April, 3, 2019: debugging (G. Lemaitre et al.)%
-% April, 8, 2019: add the correct random ITI (need to be confirm by PI) (Y. Nedelec)
 
 clear all; 
 clc;
 AddPsychJavaPath;
 
-global w 
+global w
+global screenRect
+global pahandle
 global FIX_HEIGHT 
 global FIX_WIDTH 
 global FIX_COLOR 
@@ -35,31 +32,39 @@ escapeKey = KbName('ESCAPE');
 USE_EEG = false;
  
 try 
+    %----------------- Start the PsychToolBox sound driver ----------------
+    %----------------------------------------------------------------------
     disp('InitializePsychSound')
     InitializePsychSound % here we could add InitializePsychSound([1]) to have the low latency settings
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
+    %----------------------------------------------------------------------
     
+    % Check if the correct Psychtoolbox is used
     AssertOpenGL;
-    starttime   = clock;
+    starttime = clock;
     
     %  ensure that MATLAB always gives different random numbers in separate
     %  runs. New correct writting should be: rng(sum(100*clock),'v4') the line below was written by VvW
     rand('state',sum(100*clock));      % rand('seed',sum(100*clock)) reiniti
     
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!! Will need to be removed !!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
+    % Define the path of your results, where the expMat will be saved
     result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
 
-    %--------------------------------------------------------------------------
-    %----------------------- PC PORT INITIALIZATION for EEG?-------------------
-    %--------------------------------------------------------------------------
-    %% PC stim port def
+    %----------------------- PC PORT INITIALIZATION for EEG----------------
+    %----------------------------------------------------------------------
     if USE_EEG
         address = IOPort('OpenSerialPort','COM4'); % le port depend de l'ordi
     end
+    %----------------------------------------------------------------------
     
 %% Initialisation
     % In the lab, we want at least 100 dev per duration (this number will be optimized for the train travel on another script)
@@ -123,7 +128,7 @@ try
             end
         end
 
-        % just to check if we have all the stim and add trigger: 
+        % Fourth, check if we have all the stim and add trigger: 
         % o 1 = dev1;
         % o 2 = dev2;
         % o 3 = dev3;
@@ -159,7 +164,7 @@ try
             end
         end
 
-        % add ISI in the 3rd column in ms
+        % Fifth, add ISI in the 3rd column in ms
         nTOT = length(expMat);
         expMat(:,3) = ((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'; % randomise une difference entre 800 et 1200 et l'ajoute a 800 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
 
@@ -181,8 +186,9 @@ try
 
     %------------------- END Compute Experimental Matrix ------------------
     
-    %----------------------------------------------------------------------
+    %% Get subject and session info
     %--------------------- PROMPT USER FOR DATA FILE NAME -----------------
+    %----------------------------------------------------------------------
     dataFile   = 'tmp';
     promptUser = true;
 
@@ -218,91 +224,117 @@ try
             end
         end
     end
-    %-------------------- END PROMPT USER FOR DATA FILE NAME ------------------
-    %--------------------------------------------------------------------------
-    %-------------------- INITIALIZE DISPLAY ---------------------------------- 
-    HideCursor;
-    screenHeight = 30;                      % Vertical screen size (cm)
-    screenWidth  = 41;
+    %------------------ END PROMPT USER FOR DATA FILE NAME ----------------
 
+    %% MMN task
+    %----------------------- Initialize Screen info -----------------------
+    %----------------------------------------------------------------------
+    HideCursor;
+    
+    % Get the number of screens, to choose the screen where you want to display the task
     screens = Screen('Screens');
+    % Choose the external screen attached to the computer
     screenNumber = max(screens);
 
     % Get the white and black indexes of the loaded gamma lookup table
     white = WhiteIndex(screenNumber);
     black = BlackIndex(screenNumber);
-    gray  = (white+black)/2;
 
     % screenRect returns rectangular coordinates of the screen size in pixels
-    [w,screenRect]= Screen('OpenWindow',screenNumber,0,[],32,2);
+    [w,screenRect]= Screen('OpenWindow',screenNumber,0,[],[],2); 
+    
+    % Get the size of the screen in pixels
     displayWidth  = screenRect(3) - screenRect(1);
     displayHeight = screenRect(4) - screenRect(2);
     
-    % Calculate fixation points and set GLOBAL variables
+    % Get center of the screen for fixation cross and set global variables
     FIX_HEIGHT = displayHeight/2;
     FIX_WIDTH  = displayWidth/2;
     FIX_COLOR  = white;
     
+    % inter-frame-interval:minimum possible time between drawing to the screen (should be 0.0167seconds)
     ifi = Screen('GetFlipInterval',w);
+    %---------------------- END Initialize Screen info --------------------
 
-    %-------------------------- INITIALIZE DISPLAY ------------------------
+    %------------------------ Display intial Screen -----------------------
     %----------------------------------------------------------------------
-    %--------------------- Display initial screen text --------------------
-    instructions       = 'Appuyez sur un bouton pour commencer';
+    instructions       = 'Appuyez sur la barre espace pour commencer';
     instructions_end   = 'Fin du bloc. Merci! ';
-    Screen('TextSize', w, 20);
-    Screen('TextFont', w, 'Arial Black'); 
-    Screen('FillRect', w, black );
-    Screen('DrawText', w, instructions, displayWidth/2 - 120 , displayHeight/1.5, FIX_COLOR);
-    Screen('TextFont', w, 'Geneva'); 
-    drawFixation(FIX_COLOR);
-    Screen('Flip', w);
-    KbWait;
-    %---------------------end display initial screen text ---------------------
-    %--------------------------------------------------------------------------
-    %------------------------	START LOOP	-----------------------------------
-    %--------------------------------------------------------------------------
-
-    % ----- variable intialization ------
+    
+    disp_instr = 0;
+    while disp_instr == 0
+        Screen('TextSize', w, 30);
+        Screen('TextFont', w, 'Arial Black'); 
+        Screen('FillRect', w, black );
+        Screen('DrawText', w, instructions, displayWidth/2 - 350 , displayHeight/3, FIX_COLOR); % 350 depend de la taille de l'ecran 
+        Screen('TextFont', w, 'Geneva'); 
+        drawFixation(FIX_COLOR);
+        Screen('Flip', w);
+        
+        [KeyIsDown,secs, keyCode, deltaSecs] = KbCheck;
+        keyNum = find(keyCode);
+        if keyNum == 32
+            disp_instr = 1;
+        elseif keyCode(escapeKey)
+            error('Esc key was pressed');
+            break
+        end
+    end
+    %---------------------- END Display intial Screen----------------------
+    
+    %----------------------------- Start MMN ------------------------------
+    %----------------------------------------------------------------------
+    % save expMat
     save(dataFile, 'expMat');
-
+    
+    % initialization
     Screen('FillRect',w, black);
     drawFixation(FIX_COLOR);
     Screen('Flip', w);
-    % -----------------------------------
-
+    
+    % set prioritylevel at maximum for minimum delay
     priorityLevel=MaxPriority(w);
     Priority(priorityLevel);
+    
+    % initialize PsychSound
     tmp=zeros(1,10000);
     PsychPortAudio('FillBuffer', pahandle,tmp);
     t0 = PsychPortAudio('Start', pahandle,[],0,1);
     WaitSecs(0.5); % Hack to initialize PsychSound
     
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE CHANGE !!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nT=10; % it was just to test 
+    nT=10; % it was just to debug, the nbr of trial aka sound is reduce to 10
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     Screen('TextFont', w, 'Geneva'); 
     drawFixation(FIX_COLOR);
     Screen('Flip', w);
 
+    % to check the time for debug
     Timer = -99*ones(10,nT+1);
     
-    % ------- START RUNS LOOP -------
+    % trigger at the beginning of the task 
     t_start = GetSecs;
     if USE_EEG
         [nwritten_start, t_trigger_start] = IOPort('Write', address, uint8(226),0); % le trigger 226 signe le debut de la tâche
         WaitSecs(0.5);
+        Timer(10,1) = t_trigger_start - t_start;
     end
-    Timer(10,1) = t_trigger_start - t_start;
+
+    % START LOOP
     tic;
     for n = 1 : nT
         trial = n;
         
         Timer(1,trial) = toc;
         
-        %file=['C:\Users\Recherche\Stage_Blandine_Yvan_2019\Sounds/Sound_' num2str(expMat(trial,3)) '.wav'];
+        % get the sound filename of the trial
         file=['D:\Thèse\PROJECTS\MMN\SCRIPTS\SOUNDS/Sound_' num2str(expMat(trial,2)) '.wav'];
+        % audioread returns sampled data and the sample rate for that data
         wavedata=audioread(file);
         
         Timer(2,trial) = toc;
@@ -312,17 +344,17 @@ try
         Timer(3,trial) = toc;
         
         % TRIAL display
-        % HERE : PLAY SOUNDS
         disp([' Trial #' num2str(trial) '/' num2str(nT)]);
         disp(['play stimulus: ' file]);
-
+        
+        % returns the time when the sound hit the speakers
         t_sound_start = PsychPortAudio('Start', pahandle,[],0,1);
         
+        % trigger after the sound start, the timing should be cheked
         if USE_EEG
             [nwritten, t_trigger]=IOPort('Write', address, uint8(expMat(n,4)),0);
+            Timer(8, trial) = t_trigger - t_sound_start;
         end
-        
-        Timer(8, trial) = t_trigger - t_sound_start;
         
         Timer(4,trial) = toc;
 
@@ -334,6 +366,7 @@ try
         % the start of the sound
         Soundwait = round((((expMat(trial,2)/1000))-lag)/ifi); % Wait for sound to finish
         
+        % loop on th nbr of frame to wait in order the sound is finished
         for i=1 : Soundwait
             Screen('TextFont', w, 'Geneva'); 
             drawFixation(FIX_COLOR);
@@ -342,10 +375,10 @@ try
         
         Timer(5,trial) = toc;
         
-        % Compute the waiting time for the ISI in frames
-        ISIwait = round((expMat(trial,3)/1000)/ifi); % Wait for the ISI
         % Compute a fix ISI of 50ms to trigger exaclty when the ISI start
         fixISIwaitfortrigger = round((50/1000)/ifi); % wit of 50ms turn into seconds (/1000) and turn into frames (/ifi)
+        % Compute the waiting time for the ISI in frames
+        ISIwait = round((expMat(trial,3)/1000)/ifi); % Wait for the ISI
         
         for i=1 : fixISIwaitfortrigger
             if i == 1
@@ -354,8 +387,8 @@ try
                 t_ISI_start = Screen('Flip', w);
                 if USE_EEG
                     [nwrittenISI, t_triggerISI]=IOPort('Write', address, uint8(50),0); % le trigger 50 correspond aux ISI (mais les ISI sont random ?)
+                    Timer(9,trial) = t_triggerISI -t_ISI_start;
                 end
-                Timer(9,trial) = t_triggerISI -t_ISI_start;
             else
                 Screen('TextFont', w, 'Geneva'); 
                 drawFixation(FIX_COLOR);
@@ -363,6 +396,7 @@ try
             end
         end
         
+        % loop on the number of frame to wait for the ISI
         for i=1 : ISIwait
             Screen('TextFont', w, 'Geneva'); 
             drawFixation(FIX_COLOR);
@@ -380,20 +414,22 @@ try
     end
     
     t_end = GetSecs;
-    % mettre un trigger sur le t_end
+    if USE_EEG
+        [nwrittenEND, t_triggerEND]=IOPort('Write', address, uint8(200),0); % le trigger 200 correspond a la fin de la tâche
+        Timer(10,1) = t_triggerEND - t_end;
+    end
 
-    Screen('TextSize', w, 20);
+    Screen('TextSize', w, 30);
     Screen('TextFont', w, 'Arial Black'); 
     Screen('FillRect', w, black );
-    Screen('DrawText', w, instructions_end,...
-        displayWidth/2 - 120 , displayHeight/1.5, white);
+    Screen('DrawText', w, instructions_end,displayWidth/2 - 350 , displayHeight/3, white);
     Screen('TextFont', w, 'Geneva'); 
     Screen('Flip', w);
     KbWait;
-    %--------------------------------------------------------------------------
-    %--------------------------------------------------------------------------
+    %------------------------------ End MMN -------------------------------
 
-    %% save %%
+    %------------------------- Save and close ptb -------------------------
+    %----------------------------------------------------------------------
     save(dataFile, 'expMat');
     tmptimer = [initials,blocknum];
     timerFile = [result_path tmptimer];
@@ -401,6 +437,8 @@ try
     ShowCursor;
     sca
     PsychPortAudio('Stop',pahandle);
+    %----------------------------------------------------------------------
+    
 catch
     % "catch" executes in case of an error in the "try" 
     % closes the onscreen w if open.
@@ -413,9 +451,10 @@ catch
     PsychPortAudio('Stop',pahandle);
 end %try..catch..
 
-%--------------------------------------------------------------------------
-%------- SUB FUNCTIONS   --------------------------------------------------
-%--------------------------------------------------------------------------
+%==========================================================================
+%------------------------------ SUB FUNCTIONS -----------------------------
+%==========================================================================
+
 %--------------------------------------------------------------------------
 function drawFixation( color )
 % draws a fixation point to the Screen background buffer
@@ -423,12 +462,43 @@ function drawFixation( color )
     global w
     global FIX_HEIGHT
     global FIX_WIDTH
-    Offset_x = 8;  
-    Offset_y = 11;  
-    % number of Pixels that the the center of the cross is offset from the center of the screen
-    % this is font size and type dependent
-    Screen('DrawText', w, '+', ...
-                FIX_WIDTH-Offset_x, FIX_HEIGHT-Offset_y, color);
+    
+    % length and width og the cross
+    cross_length = 30;  
+    penWidth = 5;
+    
+     % Color of the cross
+    if ischar(color)
+        if strcmp(color, 'white')
+            color_rgb = [255 255 255];
+        elseif strcmp(color, 'black')
+            color_rgb = [0 0 0];
+        else
+            disp('This color is not yet programmed. The cross will be white')
+            color_rgb = [255 255 255];
+        end
+    elseif isreal(color)
+        color=num2str(color);
+        if strcmp(color, '255')
+            color_rgb = [255 255 255];
+        elseif strcmp(color, '0')
+            color_rgb = [0 0 0];
+        else
+            disp('This color is not yet programmed. The cross will be white')
+            color_rgb = [255 255 255];
+        end
+    end
+    
+    bar_H_HdimStart = FIX_WIDTH - cross_length;
+    bar_H_HdimEnd = FIX_WIDTH + cross_length;
+    bar_H_VPosition = FIX_HEIGHT;
+    Screen('DrawLine', w, color_rgb, bar_H_HdimStart, bar_H_VPosition, bar_H_HdimEnd, bar_H_VPosition, penWidth);
+
+    % Vertical bar of the cross
+    bar_V_HPosition = FIX_WIDTH;
+    bar_V_VdimStart = FIX_HEIGHT - cross_length ;
+    bar_V_VdimEnd = FIX_HEIGHT + cross_length;
+    Screen('DrawLine', w, color_rgb, bar_V_HPosition, bar_V_VdimStart, bar_V_HPosition, bar_V_VdimEnd, penWidth);
 %--------------------------------------------------------------------------
 
 %--------------------------------------------------------------------------
