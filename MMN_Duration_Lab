@@ -15,6 +15,7 @@ function MMN_Duration_Lab_01
 % =========================================================================
 % April, 3, 2019: debugging (G. Lemaitre et al.)%
 % April, 8, 2019: add the correct random ITI (need to be confirm by PI) (Y. Nedelec)
+% blablabla what should I do next ?
 
 clear all; 
 clc;
