@@ -1,4 +1,4 @@
-function MMN_Duration_Lab_01
+function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
 % last Update: YN. 12/12/2019
