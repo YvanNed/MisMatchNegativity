@@ -186,7 +186,6 @@ try
 
     %------------------- END Compute Experimental Matrix ------------------
     
-    %% Get subject and session info
     %--------------------- PROMPT USER FOR DATA FILE NAME -----------------
     %----------------------------------------------------------------------
     dataFile   = 'tmp';
