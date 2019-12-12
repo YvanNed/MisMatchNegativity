@@ -15,7 +15,6 @@ function MMN_Duration_Lab_01
 % =========================================================================
 % April, 3, 2019: debugging (G. Lemaitre et al.)%
 % April, 8, 2019: add the correct random ITI (need to be confirm by PI) (Y. Nedelec)
-% blablabla what should I do next ?
 
 clear all; 
 clc;
@@ -25,14 +24,11 @@ global w
 global FIX_HEIGHT 
 global FIX_WIDTH 
 global FIX_COLOR 
-%global fRate 
+global ifi 
 global ESC_KEY
 global USE_EEG 
 
 ESC_KEY  ='ESCAPE';             % key value returned by KbName|exit
-
-%fRate    = FrameRate([0]);      % important to control the timing
-
 KbName('UnifyKeyNames');
 escapeKey = KbName('ESCAPE');
 
@@ -40,22 +36,30 @@ USE_EEG = false;
  
 try 
     disp('InitializePsychSound')
-    InitializePsychSound
+    InitializePsychSound % here we could add InitializePsychSound([1]) to have the low latency settings
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
     
     AssertOpenGL;
     starttime   = clock;
-    rand('state',sum(100*clock));      % rand('seed',sum(100*clock))
-    Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
     
-    result_path = 'D:\Thèse\PROJECTS\MMN\RESULTS\';
+    %  ensure that MATLAB always gives different random numbers in separate
+    %  runs. New correct writting should be: rng(sum(100*clock),'v4') the line below was written by VvW
+    rand('state',sum(100*clock));      % rand('seed',sum(100*clock)) reiniti
+    
+    %!!!!!!!!!!!!!!!!!!!!!! Will need to be removed !!!!!!!!!!!!!!!!!!!!!!!
+    Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
 
     %--------------------------------------------------------------------------
     %----------------------- PC PORT INITIALIZATION for EEG?-------------------
     %--------------------------------------------------------------------------
     %% PC stim port def
-    % NEED TO BE FILLED WITH WILLIAM
+    if USE_EEG
+        address = IOPort('OpenSerialPort','COM4'); % le port depend de l'ordi
+    end
     
 %% Initialisation
     % In the lab, we want at least 100 dev per duration (this number will be optimized for the train travel on another script)
@@ -177,8 +181,8 @@ try
 
     %------------------- END Compute Experimental Matrix ------------------
     
-    %--------------------------------------------------------------------------
-    %--------------------- PROMPT USER FOR DATA FILE NAME ---------------------
+    %----------------------------------------------------------------------
+    %--------------------- PROMPT USER FOR DATA FILE NAME -----------------
     dataFile   = 'tmp';
     promptUser = true;
 
@@ -241,9 +245,9 @@ try
     
     ifi = Screen('GetFlipInterval',w);
 
-    %-------------------- INITIALIZE DISPLAY ----------------------------------
-    %--------------------------------------------------------------------------
-    %--------------------- Display initial screen text ------------------------
+    %-------------------------- INITIALIZE DISPLAY ------------------------
+    %----------------------------------------------------------------------
+    %--------------------- Display initial screen text --------------------
     instructions       = 'Appuyez sur un bouton pour commencer';
     instructions_end   = 'Fin du bloc. Merci! ';
     Screen('TextSize', w, 20);
@@ -274,25 +278,23 @@ try
     t0 = PsychPortAudio('Start', pahandle,[],0,1);
     WaitSecs(0.5); % Hack to initialize PsychSound
     
-    if USE_EEG
-        address = IOPort('OpenSerialPort','COM4'); % le port depend de l'ordi
-        IOPort('Write', address, uint8(226),0); % le trigger 226 signe le debut de la tâche
-        WaitSecs(0.5);
-    end
-    
-    % ------- NEED TO BE CHANGE --------
+    %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE CHANGE !!!!!!!!!!!!!!!!!!!!!!!!!!
+    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     nT=10; % it was just to test 
     
-    %    Screen('DrawText', w, num2str(trial), displayWidth/2 - 120 , displayHeight/1.5, FIX_COLOR);
     Screen('TextFont', w, 'Geneva'); 
     drawFixation(FIX_COLOR);
     Screen('Flip', w);
 
-    Timer = -99*ones(9,nT+1);
+    Timer = -99*ones(10,nT+1);
     
     % ------- START RUNS LOOP -------
     t_start = GetSecs;
-    % mettre un trigger sur le t_start
+    if USE_EEG
+        [nwritten_start, t_trigger_start] = IOPort('Write', address, uint8(226),0); % le trigger 226 signe le debut de la tâche
+        WaitSecs(0.5);
+    end
+    Timer(10,1) = t_trigger_start - t_start;
     tic;
     for n = 1 : nT
         trial = n;
