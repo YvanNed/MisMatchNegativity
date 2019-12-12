@@ -35,7 +35,7 @@ try
     %----------------- Start the PsychToolBox sound driver ----------------
     %----------------------------------------------------------------------
     disp('InitializePsychSound')
-    InitializePsychSound % here we could add InitializePsychSound([1]) to have the low latency settings
+    InitializePsychSound(1) % (1) to specify needlowlatency argument
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
     %----------------------------------------------------------------------
