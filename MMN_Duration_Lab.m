@@ -38,6 +38,8 @@ try
     InitializePsychSound(1) % (1) to specify needlowlatency argument
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
+    PsychPortAudio('Verbosity',5);
+    PsychPortAudio('Volume', pahandle, .2); % this migth need to be corrected on your device
     %----------------------------------------------------------------------
     
     % Check if the correct Psychtoolbox is used
