@@ -35,11 +35,12 @@ try
     %----------------- Start the PsychToolBox sound driver ----------------
     %----------------------------------------------------------------------
     disp('InitializePsychSound')
-    InitializePsychSound(1) % (1) to specify needlowlatency argument
+    InitializePsychSound(1) % here we could add InitializePsychSound([1]) to have the low latency settings
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
+    % adjust volume
     PsychPortAudio('Verbosity',5);
-    PsychPortAudio('Volume', pahandle, .2); % this migth need to be corrected on your device
+    PsychPortAudio('Volume', pahandle, .2);
     %----------------------------------------------------------------------
     
     % Check if the correct Psychtoolbox is used
@@ -458,8 +459,8 @@ end %try..catch..
 
 %--------------------------------------------------------------------------
 function drawFixation( color )
-% draws a fixation point to the Screen background buffer
-% color - the gamma lookup table color index
+    % draws a fixation point to the Screen background buffer
+    % color - the gamma lookup table color index
     global w
     global FIX_HEIGHT
     global FIX_WIDTH
@@ -504,9 +505,8 @@ function drawFixation( color )
 
 %--------------------------------------------------------------------------
 function displayFixation( color )
-% draws a fixation point and refreshes the Screen
-% color - the gamma lookup table color index
-global w
-drawFixation( color );
-Screen('Flip', w);
-%--------------------------------------------------------------------------
+    % draws a fixation point and refreshes the Screen
+    % color - the gamma lookup table color index
+    global w
+    drawFixation( color );
+    Screen('Flip', w);
