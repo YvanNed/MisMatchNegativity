@@ -40,7 +40,7 @@ try
     pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
     % adjust volume
     PsychPortAudio('Verbosity',5); 
-    PsychPortAudio('Volume', pahandle, .4); % this migth need to be adjusted on your device
+    PsychPortAudio('Volume', pahandle, .6); % this migth need to be adjusted on your device
     s = PsychPortAudio('GetStatus', pahandle);
     %----------------------------------------------------------------------
     
@@ -180,7 +180,7 @@ try
 
         % Fifth, add ISI in the 3rd column in ms
         nTOT = length(expMat);
-        expMat(:,3) = ((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'; % randomise une difference entre 800 et 1200 et l'ajoute a 800 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
+        expMat(:,3) = round(((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'); % randomise une difference entre 800 et 1200 et l'ajoute a 800 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
 
         % ask if the numbers of stim presentation are correct
         disp(['Std number  : ' num2str(countStd) ' (' num2str((countStd*100)/length(expMat)) '%)'])
@@ -318,10 +318,12 @@ try
     tone = [];
     tone = MakeBeep(tonefreq, tonedur, audiofreq);
     
+    nT = length(expMat);
+    
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nT=100; % it was just to debug, the nbr of trial aka sound is reduce to 10
+    nT=20; % it was just to debug, the nbr of trial aka sound is reduce to 10
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -339,6 +341,7 @@ try
         WaitSecs(0.5);
     end
 
+    PsychPortAudio('FillBuffer', pahandle, tone);
     % START LOOP
     tic;
     for n = 1 : nT
@@ -347,7 +350,7 @@ try
         current_trigger_sound1 = expMat(trial,4);
         current_trigger_sound2 = expMat(trial,5);
 
-        PsychPortAudio('FillBuffer', pahandle, tone);
+        %PsychPortAudio('FillBuffer', pahandle, tone);
         
         % TRIAL display
         disp([' Trial #' num2str(trial) '/' num2str(nT)]);
@@ -359,7 +362,7 @@ try
              drawFixation(FIX_COLOR);
              trial_start = Screen('Flip',w,t_trial_start_planned);
         else
-            current_isi = expMat(trial-1,3)/1000; % ISI is converted in second. 
+            current_isi = (expMat(trial-1,3) + 5)/1000; % ISI is converted in second. + 5 is for the duration of sound2
             % now the ISI is played at the beginning of the trial so the ISI 1 is played on the trial 2 ,ISI 2 in trial 3 etc.. 
             %the last ISI will not be played
              % I'm not sure that the trigger will corespond to the begining of the ISI
@@ -369,12 +372,16 @@ try
              end
              Screen('TextFont', w, 'Geneva'); 
              drawFixation(FIX_COLOR);
-             trial_start = Screen('Flip',w,trial_stop + current_isi);
+             trial_start = Screen('Flip',w,trial_stop + current_isi); % add + current_isi);
         end
         TimeKeeper(trial,1) = trial_start;
         
         % returns the time when the sound hit the speakers
-        t_sound1_start = PsychPortAudio('Start', pahandle,[],trial_start,1);
+        if trial == 1
+            t_sound1_start = PsychPortAudio('Start', pahandle,[],trial_start,1); % should be trial_start
+        else
+            t_sound1_start = PsychPortAudio('Start', pahandle,[],t_sound2_start + current_isi,1); % should be trial_start
+        end
         TimeKeeper(trial,2) = t_sound1_start;
         % trigger after the sound start, the timing should be cheked
         if USE_EEG
