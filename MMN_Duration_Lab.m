@@ -1,7 +1,7 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 13/12/2019
+% last Update: YN. 16/12/2019
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
