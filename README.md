@@ -8,7 +8,7 @@ This repository contains:
     Using EEG (change the triggers code):
       - BrainProduct (LiveAmp) 
       - AntNeuro (EEGO)
-  - Matlab code #GenerateSounds_Y# to create empty sounds (two burst of 5ms white noisedelimit the sound) of different duration. Those sound are not used anymore, the 5ms burst are created in the task now to allow a better control for timing 
+  - Matlab code #GenerateSounds_Y# to create empty sounds (two burst of 5ms white noisedelimit the sound) of different duration. Those sounds are not used anymore, the 5ms burst are created in the task now to allow a better control for timing 
   - Matlab code #mkTimeKeeperSpeak# too check the timing in our task
   - Directory #SOUNDS# containing the sounds use in the task
   - Directory #RESULTS# where the experimental Matrices will be saved 
