@@ -372,7 +372,7 @@ try
              end
              Screen('TextFont', w, 'Geneva'); 
              drawFixation(FIX_COLOR);
-             trial_start = Screen('Flip',w,trial_stop + current_isi); % add + current_isi);
+             trial_start = Screen('Flip',w,t_sound2_start + .8); % trial start now 800ms after sound2 onset. soun2 start ISI(>1000ms after sound2 onset) 
         end
         TimeKeeper(trial,1) = trial_start;
         
