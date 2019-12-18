@@ -180,11 +180,14 @@ disp('========================================')
 
 %% check ISI timing
 p = 0;
-timing_ISI = -99*ones(length(TimeKeeper)-1,3);
+timing_ISI = -99*ones(length(TimeKeeper)-1,4);
 timing_ISI(:,1) = (expMat(1:length(TimeKeeper)-1,3) + 5) /1000; % ISI + duration of the second sound
 for p = 2:length(TimeKeeper)
     timing_ISI(p-1,2) = TimeKeeper(p,2) - TimeKeeper(p-1,7);
     timing_ISI(p-1,3) = abs(timing_ISI(p-1,1) - timing_ISI(p-1,2)); 
+    if used_EEG
+        timing_ISI(p-1,4) = TimeKeeper(p,1) - TimeKeeper(p-1,14);
+    end
 end
 
 figure
@@ -248,5 +251,6 @@ if used_EEG
     disp('========================================')
     disp(['Mean delay between trigger stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,8)))])
     disp('========================================')
+    disp(['Mean delay between trigger ISI and begining of the trial:' num2str(mean(timing_isi(:,4)))])
+    disp('========================================')
 end
-
