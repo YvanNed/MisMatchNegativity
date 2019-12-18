@@ -1,13 +1,13 @@
 %% this script extract the infos of TimeKeeper, saved as subjnamesessionTimer.mat
 %==========================================================================
 % created by: YN 12/12/2019
-% last update: YN 16/12/2019
+% last update: YN 18/12/2019
 %==========================================================================
 
 clc
 clear all;
 
-result_path = [pwd '\'];
+result_path = [pwd '\RESULTS\'];
 
 % ask the name of the file
 dataFile   = 'tmp';
@@ -49,7 +49,7 @@ while promptUser
 end
 
 % did you used eeg ?
-used_EEG = true;
+used_EEG = false;
 
 % check for -99
 B = TimeKeeper == -99;
@@ -180,11 +180,14 @@ disp('========================================')
 
 %% check ISI timing
 p = 0;
-timing_ISI = -99*ones(length(TimeKeeper)-1,3);
+timing_ISI = -99*ones(length(TimeKeeper)-1,4);
 timing_ISI(:,1) = (expMat(1:length(TimeKeeper)-1,3) + 5) /1000; % ISI + duration of the second sound
 for p = 2:length(TimeKeeper)
-    timing_ISI(p-1,2) = TimeKeeper(p,1) - TimeKeeper(p-1,12);
+    timing_ISI(p-1,2) = TimeKeeper(p,2) - TimeKeeper(p-1,7);
     timing_ISI(p-1,3) = abs(timing_ISI(p-1,1) - timing_ISI(p-1,2)); 
+    if used_EEG
+        timing_ISI(p-1,4) = TimeKeeper(p,1) - TimeKeeper(p-1,14);
+    end
 end
 
 figure
@@ -237,14 +240,17 @@ disp(['Maximum diff between trial start and sound start: ' num2str(maximum_diff_
 disp(['Mean diff between trial start and sound start: ' num2str(mean(diff_trialstart_soundstart(:,1)))])
 disp('========================================')
 
-
-disp(['Mean delay between sound start and trigger 1: ' num2str(mean(timing_within(:,4)))])
-disp('========================================')
-disp(['Mean delay between sound start and trigger 2: ' num2str(mean(timing_within(:,5)))])
-disp('========================================')
-disp(['Mean delay between trial stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,6)))])
-disp('========================================')
-disp(['Mean delay between trigger sound2 and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,7)))])
-disp('========================================')
-disp(['Mean delay between trigger stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,8)))])
-disp('========================================')
+if used_EEG
+    disp(['Mean delay between sound start and trigger 1: ' num2str(mean(timing_within(:,4)))])
+    disp('========================================')
+    disp(['Mean delay between sound start and trigger 2: ' num2str(mean(timing_within(:,5)))])
+    disp('========================================')
+    disp(['Mean delay between trial stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,6)))])
+    disp('========================================')
+    disp(['Mean delay between trigger sound2 and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,7)))])
+    disp('========================================')
+    disp(['Mean delay between trigger stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,8)))])
+    disp('========================================')
+    disp(['Mean delay between trigger ISI and begining of the trial:' num2str(mean(timing_isi(:,4)))])
+    disp('========================================')
+end
