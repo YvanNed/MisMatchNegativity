@@ -7,7 +7,7 @@
 clc
 clear all;
 
-result_path = [pwd '\'];
+result_path = [pwd '\RESULTS\'];
 
 % ask the name of the file
 dataFile   = 'tmp';
