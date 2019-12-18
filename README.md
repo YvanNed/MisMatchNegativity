@@ -1,6 +1,9 @@
 # MisMatchNegativity
 Passive MMN task based on duration.
 
+THIS BRANCH HAS A WEBER LIKE DISTRIBUTION OF DEV (+/- 5, 10, 15%) WITH A NBR OF STD OF 2400 (80%) AND A NBR OF EACH DEV OF 100 (3.333%)
+
+
 This repository contains:
   - Matlab code #MMN_duration_XXX# to run the MMN task, depending on the branch, in:
     - laboratory
