@@ -1,7 +1,7 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 16/12/2019
+% last Update: YN. 18/12/2019
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
@@ -388,7 +388,7 @@ try
              end
              Screen('TextFont', w, 'Geneva'); 
              drawFixation(FIX_COLOR);
-             trial_start = Screen('Flip',w,trial_stop + current_isi); % add + current_isi);
+             trial_start = Screen('Flip',w,t_sound2_start + .8); 
         end
         TimeKeeper(trial,1) = trial_start;
         
