@@ -86,9 +86,9 @@ try
     % ISI              = [800-1200] ms
     ISI = [1000 1400];
     % standard number  = 2100 (70%)
-    nStd = 100; % calculate by hands, 3000/3 = 1000 ; we have 900 dev ; so we still need 100 std to have 3000 stimulus 
+    nStd = 406; % calculate by hands, 3000/3 = 1000 ; we have 900 dev ; so we still need 100 std to have 3000 stimulus 
     % deviant number   = 900  (5% each) (150 each)
-    nDev = 150;
+    nDev = 100;
     % stimulus number  = 2000 (100%)
     nTOT = 3000;
     
