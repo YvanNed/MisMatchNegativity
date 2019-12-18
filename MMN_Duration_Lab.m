@@ -202,7 +202,9 @@ try
         disp(['Dev2 number : ' num2str(countDev2) ' (' num2str((countDev2*100)/length(expMat)) '%)'])
         disp(['Dev3 number : ' num2str(countDev3) ' (' num2str((countDev3*100)/length(expMat)) '%)'])
         disp(['Dev4 number : ' num2str(countDev4) ' (' num2str((countDev4*100)/length(expMat)) '%)'])
-        disp(['Total number of stimuli : ' num2str(countStd + countDev1 + countDev2 + countDev3 + countDev4)])
+        disp(['Dev5 number : ' num2str(countDev5) ' (' num2str((countDev5*100)/length(expMat)) '%)'])
+        disp(['Dev6 number : ' num2str(countDev6) ' (' num2str((countDev6*100)/length(expMat)) '%)'])
+        disp(['Total number of stimuli : ' num2str(countStd + countDev1 + countDev2 + countDev3 + countDev4 + countDev5 + countDev6)])
 
         ok = input('Are you cool with those numbers? (0/1)');
         if ok == 1
