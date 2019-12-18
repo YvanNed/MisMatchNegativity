@@ -248,4 +248,3 @@ disp(['Mean delay between trigger sound2 and trigger isi: ' num2str(mean(timing_
 disp('========================================')
 disp(['Mean delay between trigger stop and trigger isi: ' num2str(mean(timing_within(1:length(timing_within)-1,8)))])
 disp('========================================')
-
