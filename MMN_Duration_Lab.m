@@ -72,8 +72,8 @@ try
     
 %% Initialisation
     % In the lab, we want at least 100 dev per duration (this number will be optimized for the train travel on another script)
-    % And we want at least 2 std between a dev ( o o x )
-    % we have 4 dev so 400 dev in total. it means we need at least 400 sequences o o x
+    % And we want at least 2 std between a dev ( o o x ) for 3000 stimulus.
+    % we have 6 dev so 900 dev in total. it means we need at least 900 sequences o o x
     % we want 5% of dev compared to std so we will do loop putting 2 std and
     % then take randomly either a std or a dev.
     
@@ -82,15 +82,15 @@ try
     % std duration (o) = 500 ms                 80%
     std_dur = 500;
     % dev duration (x) = 400 475 525 600 ms     5% each (with at least 100stim)
-    dev_dur = [400 475 525 600];
+    dev_dur = [425 450 475 525 550 575];
     % ISI              = [800-1200] ms
     ISI = [1000 1400];
-    % standard number  = 1600 (80%)
-    nStd = 266; % calculate by hands, 2000/3 = 666 ; we have 400 dev ; so we still need 266 std 
-    % deviant number   = 400  (5% each) (100 each)
-    nDev = 100;
+    % standard number  = 2100 (70%)
+    nStd = 100; % calculate by hands, 3000/3 = 1000 ; we have 900 dev ; so we still need 100 std to have 3000 stimulus 
+    % deviant number   = 900  (5% each) (150 each)
+    nDev = 150;
     % stimulus number  = 2000 (100%)
-    nTOT = 2000;
+    nTOT = 3000;
     
     % sound parameters:
     tonefreq = 1000;
@@ -114,8 +114,10 @@ try
         n_dev2 = dev_dur(1,2)*ones(nDev,2);
         n_dev3 = dev_dur(1,3)*ones(nDev,2);
         n_dev4 = dev_dur(1,4)*ones(nDev,2);
+        n_dev5 = dev_dur(1,5)*ones(nDev,2);
+        n_dev6 = dev_dur(1,6)*ones(nDev,2);
 
-        rand_stim = [n_std; n_dev1; n_dev2; n_dev3; n_dev4]; % concatenate all the simulus that will be randomly drawn
+        rand_stim = [n_std; n_dev1; n_dev2; n_dev3; n_dev4; n_dev5; n_dev6]; % concatenate all the simulus that will be randomly drawn
 
         rand_stim(:,1) = randperm(length(rand_stim));        % create the random order
         rand_stim = sortrows(rand_stim);
@@ -148,6 +150,8 @@ try
         countDev2 = 0;
         countDev3 = 0;
         countDev4 = 0;
+        countDev5 = 0;
+        countDev6 = 0;
         countStd = 0;
         for i = 1:length(expMat)
             
@@ -171,10 +175,20 @@ try
                 expMat(i,4) = 40;
                 expMat(i,5) = 41;
                 
-            elseif expMat(i,2) == std_dur
-                countStd = countStd +1;
+            elseif expMat(i,2) == dev_dur(5)
+                countDev5 = countDev5 +1;
                 expMat(i,4) = 50;
                 expMat(i,5) = 51;
+            
+            elseif expMat(i,2) == dev_dur(6)
+                countDev6 = countDev6 +1;
+                expMat(i,4) = 60;
+                expMat(i,5) = 61;
+                
+            elseif expMat(i,2) == std_dur
+                countStd = countStd +1;
+                expMat(i,4) = 70;
+                expMat(i,5) = 71;
             end
         end
 
