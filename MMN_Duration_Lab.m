@@ -64,8 +64,8 @@ try
 %% Initialisation
     % In the lab, we want at least 100 dev per duration (this number will be optimized for the train travel on another script)
     % And we want at least 2 std between a dev ( o o x ) for 3000 stimulus.
-    % we have 6 dev so 900 dev in total. it means we need at least 900 sequences o o x
-    % we want 5% of dev compared to std so we will do loop putting 2 std and
+    % we have 6 dev so 600 dev in total. it means we need at least 600 sequences o o x
+    % we want 3,3% of dev compared to std so we will do loop putting 2 std and
     % then take randomly either a std or a dev.
     
     %---------------------------- Parameters ------------------------------
@@ -78,7 +78,7 @@ try
     ISI = [1000 1400];
     % standard number  = 2100 (70%)
     nStd = 400; % calculate by hands, 3000/3 = 1000 ; we have 600 dev ; so we still need 400 std to have 3000 stimulus 
-    % deviant number   = 600  (5% each) (100 each)
+    % deviant number   = 600  (3.3% each) (100 each)
     nDev = 100;
     % stimulus number  = 3000 (100%)
     nTOT = 3000;
