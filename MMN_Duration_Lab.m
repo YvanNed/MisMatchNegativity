@@ -1,14 +1,11 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 16/12/2019
+% last Update: YN. 08/01/2020
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
 % o o o o o x o o o o o x o o x ...
-% =========================================================================
-% The sounds need to be created before with the function GenerateSounds_Y 
-% and then placed in a folder SOUNDS at the location "D:\Thèse\PROJECTS\MMN\SCRIPTS\SOUNDS"
 % =========================================================================
 
 clear all; 
@@ -49,16 +46,10 @@ try
     starttime = clock;
     
     %  ensure that MATLAB always gives different random numbers in separate
-    %  runs. New correct writting should be: rng(sum(100*clock),'v4') the line below was written by VvW
+    %  runs. In recent matlab version, can be remplaced by: rng(sum(100*clock),'v4')
     rand('state',sum(100*clock));      % rand('seed',sum(100*clock)) reiniti
     
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!! Will need to be removed !!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Screen('Preference', 'SkipSyncTests', 1); % it's ok to use this line bc we are using only auditory stim and we control perfectly the timing
     
     % Define the path of your results, where the expMat will be saved
     result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
@@ -83,13 +74,13 @@ try
     std_dur = 500;
     % dev duration (x) = 400 475 525 600 ms     5% each (with at least 100stim)
     dev_dur = [425 450 475 525 550 575];
-    % ISI              = [800-1200] ms
+    % ISI              = [1000-1400] ms
     ISI = [1000 1400];
     % standard number  = 2100 (70%)
-    nStd = 400; % calculate by hands, 3000/3 = 1000 ; we have 900 dev ; so we still need 100 std to have 3000 stimulus 
-    % deviant number   = 900  (5% each) (150 each)
+    nStd = 400; % calculate by hands, 3000/3 = 1000 ; we have 600 dev ; so we still need 400 std to have 3000 stimulus 
+    % deviant number   = 600  (5% each) (100 each)
     nDev = 100;
-    % stimulus number  = 2000 (100%)
+    % stimulus number  = 3000 (100%)
     nTOT = 3000;
     
     % sound parameters:
@@ -144,7 +135,9 @@ try
         % o 20 & 21 = dev2 sound1 & sound2;
         % o 30 & 31 = dev3 sound1 & sound2;
         % o 40 & 41 = dev4 sound1 & sound2;
-        % o 50 & 51 = std  sound1 & sound2;
+        % o 50 & 51 = dev5 sound1 & sound2;
+        % o 60 & 61 = dev6 sound1 & sound2;
+        % o 70 & 71 = std  sound1 & sound2;
         
         countDev1 = 0;
         countDev2 = 0;
@@ -339,7 +332,7 @@ try
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nT=20; % it was just to debug, the nbr of trial aka sound is reduce to 10
+    nT=20; % it was just to debug, the nbr of trial is reduce to 20
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
