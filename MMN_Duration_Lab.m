@@ -1,7 +1,7 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 18/12/2019
+% last Update: YN. 08/01/2020
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
@@ -49,16 +49,10 @@ try
     starttime = clock;
     
     %  ensure that MATLAB always gives different random numbers in separate
-    %  runs. New correct writting should be: rng(sum(100*clock),'v4') the line below was written by VvW
+    %  runs. In recent matlab version, can be remplaced by: rng(sum(100*clock),'v4')
     rand('state',sum(100*clock));      % rand('seed',sum(100*clock)) reiniti
     
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!! Will need to be removed !!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Screen('Preference', 'SkipSyncTests', 1); % We can use this line bc we are using only auditory stim and we perfeclty control the timing
     
     % Define the path of your results, where the expMat will be saved
     result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
@@ -339,12 +333,12 @@ try
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nT=20; % it was just to debug, the nbr of trial aka sound is reduce to 10
+    nT=20; % it was just to debug, the nbr of trial is reduce to 20
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    % insert the initialization of the timer_count here (or above at the begining of the task
+    % Initialization of the matrix to store the timing in the during the task
     TimeKeeper = -99*ones(nT,14);
     
     Screen('TextFont', w, 'Geneva'); 
