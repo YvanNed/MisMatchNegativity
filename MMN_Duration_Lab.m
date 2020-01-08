@@ -1,14 +1,13 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 18/12/2019
+% last Update: YN. 08/01/2020
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
 % o o o o o x o o o o o x o o x ...
 % =========================================================================
-% The sounds need to be created before with the function GenerateSounds_Y 
-% and then placed in a folder SOUNDS at the location "D:\Thèse\PROJECTS\MMN\SCRIPTS\SOUNDS"
+% The sounds are now created in the script so we don't need a SOUND folder anymore and a script to create them
 % =========================================================================
 
 clear all; 
@@ -49,16 +48,10 @@ try
     starttime = clock;
     
     %  ensure that MATLAB always gives different random numbers in separate
-    %  runs. New correct writting should be: rng(sum(100*clock),'v4') the line below was written by VvW
-    rand('state',sum(100*clock));      % rand('seed',sum(100*clock)) reiniti
+    %  runs. In recent matlab version this line can be remplace by: rng(sum(100*clock),'v4')
+    rand('state',sum(100*clock));      % rand('seed',sum(100*clock))
     
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!! Will need to be removed !!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Screen('Preference', 'SkipSyncTests', 1); % should not be used if we want to be precise
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    Screen('Preference', 'SkipSyncTests', 1); % it is ok to use this bc y=we are doing only auditory stimuli and we control perfeclty the timing
     
     % Define the path of your results, where the expMat will be saved
     result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
@@ -180,7 +173,7 @@ try
 
         % Fifth, add ISI in the 3rd column in ms
         nTOT = length(expMat);
-        expMat(:,3) = round(((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'); % randomise une difference entre 800 et 1200 et l'ajoute a 800 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
+        expMat(:,3) = round(((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'); % randomise une difference entre 1000 et 1400 et l'ajoute a 1000 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
 
         % ask if the numbers of stim presentation are correct
         disp(['Std number  : ' num2str(countStd) ' (' num2str((countStd*100)/length(expMat)) '%)'])
@@ -323,12 +316,12 @@ try
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!! NEED TO BE REMOVED !!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    nT=20; % it was just to debug, the nbr of trial aka sound is reduce to 10
+    nT=20; % it was just to debug, the nbr of trial is reduce to 20
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-    % insert the initialization of the timer_count here (or above at the begining of the task
+    % initialize matrix that store the timing in our task and that can be read with the appropriate script
     TimeKeeper = -99*ones(nT,14);
     
     Screen('TextFont', w, 'Geneva'); 
@@ -365,14 +358,14 @@ try
             current_isi = (expMat(trial-1,3) + 5)/1000; % ISI is converted in second. + 5 is for the duration of sound2
             % now the ISI is played at the beginning of the trial so the ISI 1 is played on the trial 2 ,ISI 2 in trial 3 etc.. 
             %the last ISI will not be played
-             % I'm not sure that the trigger will corespond to the begining of the ISI
-             if USE_EEG
+            
+            if USE_EEG
                     [nwrittenISI, t_triggerISI]=IOPort('Write', address, uint8(100),0); % le trigger 100 correspond aux ISI (mais les ISI sont random ?)
                     TimeKeeper(trial-1,14) = t_triggerISI;
-             end
-             Screen('TextFont', w, 'Geneva'); 
-             drawFixation(FIX_COLOR);
-             trial_start = Screen('Flip',w,t_sound2_start + .8); % trial start now 800ms after sound2 onset. soun2 start ISI(>1000ms after sound2 onset) 
+            end
+            Screen('TextFont', w, 'Geneva'); 
+            drawFixation(FIX_COLOR);
+            trial_start = Screen('Flip',w,t_sound2_start + .8); % trial start now 800ms after sound2 onset. soun2 start ISI(>1000ms after sound2 onset) 
         end
         TimeKeeper(trial,1) = trial_start;
         
@@ -383,7 +376,7 @@ try
             t_sound1_start = PsychPortAudio('Start', pahandle,[],t_sound2_start + current_isi,1); % should be trial_start
         end
         TimeKeeper(trial,2) = t_sound1_start;
-        % trigger after the sound start, the timing should be cheked
+        % trigger after the sound start, timing is less than 1ms
         if USE_EEG
             [nwritten1, t_trigger1]=IOPort('Write', address, uint8(current_trigger_sound1),0);
             TimeKeeper(trial,3) = t_trigger1;
@@ -400,7 +393,7 @@ try
         t_sound2_start = PsychPortAudio('Start', pahandle,[],t_sound1_start + current_dur,1);
         TimeKeeper(trial,7) = t_sound2_start;
         
-        % trigger after the sound start, the timing should be cheked
+        % trigger after the sound start, timing is less than 1ms
         if USE_EEG
             [nwritten2, t_trigger2]=IOPort('Write', address, uint8(current_trigger_sound2),0);
             TimeKeeper(trial,8) = t_trigger2;
