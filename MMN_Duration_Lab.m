@@ -1,13 +1,13 @@
 function MMN_Duration_Lab
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 08/01/2020
+% last Update: YN. 16/01/2020
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
 % o o o o o x o o o o o x o o x ...
 % =========================================================================
-% The sounds are now created in the script so we don't need a SOUND folder anymore and a script to create them
+% Parameters have been change so that the total duration of MMN is 23,3min
 % =========================================================================
 
 clear all; 
@@ -72,12 +72,12 @@ try
     
     %---------------------------- Parameters ------------------------------
     %----------------------------------------------------------------------
-    % std duration (o) = 500 ms                 80%
-    std_dur = 500;
-    % dev duration (x) = 400 475 525 600 ms     5% each (with at least 100stim)
-    dev_dur = [400 475 525 600];
-    % ISI              = [800-1200] ms
-    ISI = [1000 1400];
+    % std duration (o) = 200 ms                 80%
+    std_dur = 200;
+    % dev duration (x) = 100 150 250 300 ms     25 and 50% od the std dur 
+    dev_dur = [100 150 250 300];
+    % ISI              = [400-600] ms std dur + TWI
+    ISI = [400 600];
     % standard number  = 1600 (80%)
     nStd = 266; % calculate by hands, 2000/3 = 666 ; we have 400 dev ; so we still need 266 std 
     % deviant number   = 400  (5% each) (100 each)
