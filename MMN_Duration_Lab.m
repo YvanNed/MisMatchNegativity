@@ -365,7 +365,7 @@ try
             end
             Screen('TextFont', w, 'Geneva'); 
             drawFixation(FIX_COLOR);
-            trial_start = Screen('Flip',w,t_sound2_start + .8); % trial start now 800ms after sound2 onset. soun2 start ISI(>1000ms after sound2 onset) 
+            trial_start = Screen('Flip',w,t_sound2_start + .35); % trial start now 350ms after sound2 onset. soun2 start ISI(>400ms after sound2 onset) 
         end
         TimeKeeper(trial,1) = trial_start;
         
@@ -373,7 +373,7 @@ try
         if trial == 1
             t_sound1_start = PsychPortAudio('Start', pahandle,[],trial_start,1); % should be trial_start
         else
-            t_sound1_start = PsychPortAudio('Start', pahandle,[],t_sound2_start + current_isi,1); % should be trial_start
+            t_sound1_start = PsychPortAudio('Start', pahandle,[],t_sound2_start + current_isi,1);
         end
         TimeKeeper(trial,2) = t_sound1_start;
         % trigger after the sound start, timing is less than 1ms
