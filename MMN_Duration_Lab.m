@@ -124,7 +124,7 @@ try
         count = 0;
         for i = 1:length(expMat)
             if expMat(i,2) == -99
-                expMat(i,2) = 500;
+                expMat(i,2) = std_dur;
             else
                 count = count+1;
             end
