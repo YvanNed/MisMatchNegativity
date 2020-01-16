@@ -343,7 +343,7 @@ try
         current_trigger_sound1 = expMat(trial,4);
         current_trigger_sound2 = expMat(trial,5);
 
-        %PsychPortAudio('FillBuffer', pahandle, tone);
+        PsychPortAudio('FillBuffer', pahandle, tone);
         
         % TRIAL display
         disp([' Trial #' num2str(trial) '/' num2str(nT)]);
