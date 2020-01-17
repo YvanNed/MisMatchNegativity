@@ -7,7 +7,7 @@ function MMN_Duration_Lab_NEWSTIM
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
 % o o o o o x o o o o o x o o x ...
 % =========================================================================
-% Parameters have been change so that the total duration of MMN is 23,3min
+% Parameters have been change so that the total duration of MMN is 23,3min, and stim sound are now silent duration of the wanted duration include in two 1ms white nois burst.
 % =========================================================================
 
 clear all; 
