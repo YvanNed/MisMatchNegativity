@@ -1,13 +1,13 @@
-function MMN_Duration_Lab
+function MMN_Duration_Lab_NEWSTIM
 % =========================================================================
 % created by: YN. 27/11/2019
-% last Update: YN. 08/01/2020
+% last Update: YN. 17/01/2020
 % =========================================================================
 %% Description
 % basic passive MMN duration with at least 2 standards (o) between a deviant (x)
 % o o o o o x o o o o o x o o x ...
 % =========================================================================
-% The sounds are now created in the script so we don't need a SOUND folder anymore and a script to create them
+% Parameters have been change so that the total duration of MMN is 23,3min
 % =========================================================================
 
 clear all; 
@@ -36,11 +36,17 @@ try
     disp('InitializePsychSound')
     InitializePsychSound(1) % (1) to specify needlowlatency argument
     GetSecs;    % pre-load GetSecs if you want to use it later on your code
-    pahandle = PsychPortAudio('Open', [], [], 0, [], 1);
+    %sf = 44100;  My PC does not support this sampling rate
+    nrchannels = 2;
+    pahandle = PsychPortAudio('Open', [], [], 2, [], nrchannels, [], []); % the 4 parameter is the request latency mode. 4 will crash PsychPortAudio if latency does not meet the strictest requirements (Don't know where to find those requirement for now.. I will try 3 if 4 doesn't work);  
+    % the parameter after the 4 can be change by sf if the sampling rate of
+    % supported by the device is already known !
+    
     % adjust volume
     PsychPortAudio('Verbosity',5); 
     PsychPortAudio('Volume', pahandle, .6); % this migth need to be adjusted on your device
     s = PsychPortAudio('GetStatus', pahandle);
+    sf = s.SampleRate;
     %----------------------------------------------------------------------
     
     % Check if the correct Psychtoolbox is used
@@ -54,7 +60,7 @@ try
     Screen('Preference', 'SkipSyncTests', 1); % it is ok to use this bc y=we are doing only auditory stimuli and we control perfeclty the timing
     
     % Define the path of your results, where the expMat will be saved
-    result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\RESULTS\';
+    result_path = 'D:\Thèse\PROJECTS\MMN\SCRIPTS\Sound_Task - pour Yvan\MisMatchNegativity-short_MMN\RESULTS\';
 
     %----------------------- PC PORT INITIALIZATION for EEG----------------
     %----------------------------------------------------------------------
@@ -72,12 +78,13 @@ try
     
     %---------------------------- Parameters ------------------------------
     %----------------------------------------------------------------------
-    % std duration (o) = 500 ms                 80%
-    std_dur = 500;
-    % dev duration (x) = 400 475 525 600 ms     5% each (with at least 100stim)
-    dev_dur = [400 475 525 600];
-    % ISI              = [800-1200] ms
-    ISI = [1000 1400];
+    % std duration (o) = 200 ms                 
+    std_dur = 0.200; % in sec
+    % dev duration (x) = 100 150 250 300 ms     25 and 50% od the std dur 
+    dev_dur = [0.100 0.150 0.250 0.300]; % in sec
+    % ISI              = [400-600] ms           std dur + TWI
+    ISI = [0.400 0.600]; % in sec
+    
     % standard number  = 1600 (80%)
     nStd = 266; % calculate by hands, 2000/3 = 666 ; we have 400 dev ; so we still need 266 std 
     % deviant number   = 400  (5% each) (100 each)
@@ -85,10 +92,43 @@ try
     % stimulus number  = 2000 (100%)
     nTOT = 2000;
     
-    % sound parameters:
-    tonefreq = 1000;
-    tonedur = 0.005; % 5ms
-    audiofreq = s.SampleRate; % or fixe it at 44100 or 48000
+    % sf        = 44100;        % default sampling frequency  THIS LINE ATTEST MY WEAK ATTENTION 
+    click_dur = 0.001;        % default click duration 1ms
+    % white noise clicks
+    N = floor(sf*click_dur);  % click samples
+    sig = floor(randn(N,1));                       
+    m = max(sig);                           
+    tmp = 0.5 *(sig/m) ;      % wnoise dB scaling
+    % binaural
+    click(1,:) = tmp';
+    click(2,:) = tmp';
+
+
+    % create stim 
+    % STD
+    std_dur   = 0.200; % !!!!!!!!!!!!!!!!!!!!!! this line can be removed (already defined above)
+    stdd     =  zeros(2,fix(sf*std_dur));
+    STD      = [click stdd click];
+
+    % DEV1
+    dev1_dur  = 0.100; % !!!!!!!!!!!!!!!!!!!!!! this line can be remplaced by dev1_dur = dev_dur(1)
+    dev1d     = zeros(2,fix(sf*dev1_dur));
+    DEV1      = [click dev1d click];
+
+    % DEV2
+    dev2_dur  = 0.150; % !!!!!!!!!!!!!!!!!!!!!! this line can be remplaced by dev2_dur = dev_dur(2)
+    dev2d     = zeros(2,fix(sf*dev2_dur));
+    DEV2      = [click dev2d click];
+
+    % DEV3
+    dev3_dur  = 0.250; % !!!!!!!!!!!!!!!!!!!!!! this line can be remplaced by dev3_dur = dev_dur(3)
+    dev3d     = zeros(2,fix(sf*dev3_dur));
+    DEV3      = [click dev3d click];
+
+    % DEV4
+    dev4_dur  = 0.300; % !!!!!!!!!!!!!!!!!!!!!! this line can be remplaced by dev4_dur = dev_dur(4)
+    dev4d     = zeros(2,fix(sf*dev4_dur));
+    DEV4      = [click dev4d click];
     %----------------------------------------------------------------------
 
     %-------------------- Compute Experimental Matrix ---------------------
@@ -124,7 +164,7 @@ try
         count = 0;
         for i = 1:length(expMat)
             if expMat(i,2) == -99
-                expMat(i,2) = 500;
+                expMat(i,2) = std_dur;
             else
                 count = count+1;
             end
@@ -141,7 +181,7 @@ try
         countDev2 = 0;
         countDev3 = 0;
         countDev4 = 0;
-        countStd = 0;
+        countStd  = 0;
         for i = 1:length(expMat)
             
             if expMat(i,2) == dev_dur(1)
@@ -173,7 +213,7 @@ try
 
         % Fifth, add ISI in the 3rd column in ms
         nTOT = length(expMat);
-        expMat(:,3) = round(((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'); % randomise une difference entre 1000 et 1400 et l'ajoute a 1000 (plus petit ISI) pour avoir des ISI entre 800 et 1200  
+        expMat(:,3) = ((ISI(2)-ISI(1))*rand(1,nTOT) + ISI(1))'; % randomise une difference entre 0.400 et 0.600 et l'ajoute a 0.400 (plus petit ISI) pour avoir des ISI entre 0.400 et 0.600 sec  
 
         % ask if the numbers of stim presentation are correct
         disp(['Std number  : ' num2str(countStd) ' (' num2str((countStd*100)/length(expMat)) '%)'])
@@ -202,7 +242,7 @@ try
 
         prompt1=inputdlg('Subject ID','Output File',1,{'tmp'});
         if isempty(prompt1)
-            disp(['Experience annulée...']);
+            disp(['Experience annulÃ©e...']);
             return;
         else
             initials=prompt1{1};
@@ -210,7 +250,7 @@ try
 
         prompt2=inputdlg('Block number','Output File',1,{'tmp'});
         if isempty(prompt2)
-            disp(['Experience annulé...']);
+            disp(['Experience annulÃ©...']);
             return;
         else
             blocknum =prompt2{1};
@@ -222,7 +262,7 @@ try
                 dataFile = [result_path tmpFile];
                 promptUser = false;
             else
-                replace=questdlg(['Un fichier à ce nom existe déjà', tmpFile, '. Voulez-vous le remplacer?']);
+                replace=questdlg(['Un fichier Ã  ce nom existe dÃ©jÃ ', tmpFile, '. Voulez-vous le remplacer?']);
                 if strcmp( replace, 'Yes' )
                    dataFile = [result_path tmpFile];
                    promptUser = false;
@@ -303,13 +343,13 @@ try
     Priority(priorityLevel);
     
     % initialize PsychSound
-    tmp=zeros(1,10000);
-    PsychPortAudio('FillBuffer', pahandle,tmp);
+    tmp_s=zeros(1,10000);
+    tmp_s(1,:)= tmp_s;
+    tmp_s(2,:)= tmp_s;
+    
+    PsychPortAudio('FillBuffer', pahandle,tmp_s);
     t0 = PsychPortAudio('Start', pahandle,[],0,1);
     WaitSecs(0.5); % Hack to initialize PsychSound
-    % make the tone
-    tone = [];
-    tone = MakeBeep(tonefreq, tonedur, audiofreq);
     
     nT = length(expMat);
     
@@ -322,7 +362,7 @@ try
     %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     % initialize matrix that store the timing in our task and that can be read with the appropriate script
-    TimeKeeper = -99*ones(nT,14);
+    TimeKeeper = -99*ones(nT,10);
     
     Screen('TextFont', w, 'Geneva'); 
     drawFixation(FIX_COLOR);
@@ -330,24 +370,38 @@ try
     
     % trigger pour le debut de la tâche
     if USE_EEG
-        [nwritten_start, t_trigger_start] = IOPort('Write', address, uint8(226),0); % le trigger 226 signe le debut de la tâche
+        [nwritten_start, t_trigger_start] = IOPort('Write', address, uint8(226),0); % le trigger 226 signe le debut de la tÃ¢che
         WaitSecs(0.5);
     end
 
-    PsychPortAudio('FillBuffer', pahandle, tone);
+    PsychPortAudio('FillBuffer', pahandle, STD);
     % START LOOP
     tic;
     for n = 1 : nT
         trial = n;
-        current_dur = expMat(trial,2)/1000; % duration is converted in second
-        current_trigger_sound1 = expMat(trial,4);
-        current_trigger_sound2 = expMat(trial,5);
+        
+        current_stim = expMat(trial,2); % duration is already in sec
+        STIM = [];
+        if current_stim == 0.200
+            STIM = STD;
+        elseif current_stim == 0.100
+            STIM = DEV1;
+        elseif current_stim == 0.150
+            STIM = DEV2;
+        elseif current_stim == 0.250
+            STIM = DEV3;
+        elseif current_stim == 0.300
+            STIM = DEV4;
+        end
+        
+        current_trigger_onset = expMat(trial,4);
+        current_trigger_offset = expMat(trial,5);
 
-        %PsychPortAudio('FillBuffer', pahandle, tone);
+        PsychPortAudio('FillBuffer', pahandle, STIM);
         
         % TRIAL display
         disp([' Trial #' num2str(trial) '/' num2str(nT)]);
-        disp(['play stimulus: ' current_dur]);
+        disp(['play stimulus: ' current_stim]);
         
         if trial == 1
              t_trial_start_planned = GetSecs + 4;
@@ -355,63 +409,57 @@ try
              drawFixation(FIX_COLOR);
              trial_start = Screen('Flip',w,t_trial_start_planned);
         else
-            current_isi = (expMat(trial-1,3) + 5)/1000; % ISI is converted in second. + 5 is for the duration of sound2
-            % now the ISI is played at the beginning of the trial so the ISI 1 is played on the trial 2 ,ISI 2 in trial 3 etc.. 
-            %the last ISI will not be played
+            current_isi = expMat(trial-1,3); % ISI is already in second.
+            % now the ISI is played at the beginning of the trial so the ISI 1 
+            % is played on the trial 2 ,ISI 2 in trial 3 etc.. 
+            % the last ISI will not be played
             
-            if USE_EEG
-                    [nwrittenISI, t_triggerISI]=IOPort('Write', address, uint8(100),0); % le trigger 100 correspond aux ISI (mais les ISI sont random ?)
-                    TimeKeeper(trial-1,14) = t_triggerISI;
-            end
+            %trigger sur l'ISI is not needed cuz it's the same as trigger
+            %trial stop
+%             if USE_EEG
+%                     [nwrittenISI, t_triggerISI]=IOPort('Write', address, uint8(100),0); % le trigger 100 correspond aux ISI (mais les ISI sont random ?)
+%                     TimeKeeper(trial-1,10) = t_triggerISI;
+%             end
             Screen('TextFont', w, 'Geneva'); 
             drawFixation(FIX_COLOR);
-            trial_start = Screen('Flip',w,t_sound2_start + .8); % trial start now 800ms after sound2 onset. soun2 start ISI(>1000ms after sound2 onset) 
+            trial_start = Screen('Flip',w,t_sound_start + .35); % trial start now 350ms after sound onset of the previous trial.
         end
         TimeKeeper(trial,1) = trial_start;
         
         % returns the time when the sound hit the speakers
         if trial == 1
-            t_sound1_start = PsychPortAudio('Start', pahandle,[],trial_start,1); % should be trial_start
+            t_sound_start = PsychPortAudio('Start', pahandle,[],trial_start,1); % should be trial_start
         else
-            t_sound1_start = PsychPortAudio('Start', pahandle,[],t_sound2_start + current_isi,1); % should be trial_start
+            t_sound_start = PsychPortAudio('Start', pahandle,[],estStopTime_s + current_isi,1); % the sound start at the timestamp of the end of the previous sound + the ISI duration, I sould maybe timed it on the onset of the sound + sound duration + ISI duration
+
         end
-        TimeKeeper(trial,2) = t_sound1_start;
+        TimeKeeper(trial,2) = t_sound_start;
         % trigger after the sound start, timing is less than 1ms
         if USE_EEG
-            [nwritten1, t_trigger1]=IOPort('Write', address, uint8(current_trigger_sound1),0);
-            TimeKeeper(trial,3) = t_trigger1;
+            [nwritten1, t_trigger_onset]=IOPort('Write', address, uint8(current_trigger_onset),0);
+            TimeKeeper(trial,3) = t_trigger_onset;
         end
         
-        [startTime_s1 endPositionSecs_s1 xruns estStopTime_s1] = PsychPortAudio('Stop', pahandle, 1);
+        [startTime_s endPositionSecs_s xruns estStopTime_s] = PsychPortAudio('Stop', pahandle, 1);
         % endPositionsSecs should be the last moment the device is used and estStopTime is an estimate of when the playback is stopped
-        TimeKeeper(trial,4) = startTime_s1;
-        TimeKeeper(trial,5) = endPositionSecs_s1;
-        TimeKeeper(trial,6) = estStopTime_s1;
-        
-        PsychPortAudio('FillBuffer', pahandle, tone);
-        
-        t_sound2_start = PsychPortAudio('Start', pahandle,[],t_sound1_start + current_dur,1);
-        TimeKeeper(trial,7) = t_sound2_start;
+        TimeKeeper(trial,4) = startTime_s;
+        TimeKeeper(trial,5) = endPositionSecs_s;
+        TimeKeeper(trial,6) = estStopTime_s;
         
         % trigger after the sound start, timing is less than 1ms
         if USE_EEG
-            [nwritten2, t_trigger2]=IOPort('Write', address, uint8(current_trigger_sound2),0);
-            TimeKeeper(trial,8) = t_trigger2;
+            [nwritten2, t_trigger_offset]=IOPort('Write', address, uint8(current_trigger_offset),0);
+            TimeKeeper(trial,7) = t_trigger_offset;
         end
-        
-        [startTime_s2 endPositionSecs_s2 xruns estStopTime_s2] = PsychPortAudio('Stop', pahandle, 1);
-        TimeKeeper(trial,9) = startTime_s2;
-        TimeKeeper(trial,10) = endPositionSecs_s2;
-        TimeKeeper(trial,11) = estStopTime_s2;
         
         Screen('TextFont', w, 'Geneva'); 
         drawFixation(FIX_COLOR);
-        trial_stop = Screen('Flip', w, t_sound2_start + tonedur); % the trial stops at the start of the second sound + the duration of the secoond sound!
-        TimeKeeper(trial,12) = trial_stop;
+        trial_stop = Screen('Flip', w, t_sound_start + current_stim); % the trial stops at the start of the second sound + the duration of the secoond sound!
+        TimeKeeper(trial,8) = trial_stop;
         
         if USE_EEG
-            [nwritten, t_trigger_trialstop]=IOPort('Write', address, uint8(150),0); % le trigger 150 correspond à la fin du trial
-            TimeKeeper(trial,13) = t_trigger_trialstop;
+            [nwritten, t_trigger_trialstop]=IOPort('Write', address, uint8(150),0); % le trigger 150 correspond Ã  la fin du trial
+            TimeKeeper(trial,9) = t_trigger_trialstop;
         end
         
         [KeyIsDown, secs, keyCode, deltaSecs] = KbCheck;
@@ -423,7 +471,7 @@ try
     end
     
     if USE_EEG
-        [nwrittenEND, t_triggerEND]=IOPort('Write', address, uint8(200),0); % le trigger 200 correspond a la fin de la tâche
+        [nwrittenEND, t_triggerEND]=IOPort('Write', address, uint8(200),0); % le trigger 200 correspond a la fin de la tÃ¢che
     end
 
     Screen('TextSize', w, 30);
@@ -440,7 +488,7 @@ try
     save(dataFile, 'expMat');
     tmptimer = [initials,blocknum];
     timerFile = [result_path tmptimer];
-    save([timerFile 'Timer'],'TimeKeeper','t_start','t_end');
+    save([timerFile 'Timer'],'TimeKeeper','t_start','t_end', 'sf', 'STD', 'DEV1', 'DEV2', 'DEV3', 'DEV4');
     ShowCursor;
     sca
     PsychPortAudio('Stop',pahandle);
@@ -515,3 +563,4 @@ function displayFixation( color )
     global w
     drawFixation( color );
     Screen('Flip', w);
+
